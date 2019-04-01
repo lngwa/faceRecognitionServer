@@ -51,14 +51,22 @@ app.get("/", (req, res) => {
 });
 
 app.post("/signin", (req, res) => {
-	const user = database.users.filter(
+	const user2 = database.users.filter(
 		user =>
 			user.email === req.body.email && user.password === req.body.password
 	);
-	if (user.length > 0) {
-		res.json(`success`);
+	if (user2.length > 0) {
+		user = user2[0];
+		res.json({
+			id: user.id,
+			name: user.name,
+			email: user.email,
+			status: "success",
+			entries: user.entries,
+			created_at: user.created_at
+		});
 	} else {
-		res.json(`fail`);
+		res.json({status: `fail`, msg: "Wrong password or email"});
 	}
 });
 
@@ -67,9 +75,14 @@ app.post("/register", (req, res) => {
 	const { name, email, password } = req.body;
 	const user = getUserByEmail(email);
 	if (user.length > 0) {
-		res.json(`User already exist!`);
+		res.json(
+			{
+				status: "fail", 
+				msg: `User already exist!`
+		});
 	} else {
 		const newUser = {
+			status: "success",
 			id: ++CNT,
 			name: name,
 			email: email,
@@ -104,7 +117,7 @@ app.put("/image", (req, res) => {
 		if (user.id == id) {
 			user.entries++;
 			found = true;
-			res.json(user.entries);
+			res.json({status: "success", entries: user.entries});
 		}
 	});
 	if (!found) {
